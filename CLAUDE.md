@@ -51,9 +51,9 @@ Revit (.rvt) dosyalarını toplu olarak Navisworks (.nwc/.nwd) formatına dönü
 ### 5. Core İşlevsellik
 - [x] Logger.cs - Loglama sistemi
 - [x] ErrorHandler.cs - Hata yönetimi
-- [ ] RevitExportTask.cs - Ana dönüştürme mantığı
-- [ ] WorksetManager.cs - Workset filtreleme
-- [ ] ViewSelector.cs - View filtreleme
+- [x] RevitExportTask.cs - Ana dönüştürme mantığı
+- [x] WorksetManager.cs - Workset filtreleme
+- [x] ViewSelector.cs - View filtreleme
 
 ### 6. Veri Modelleri
 - [x] ConversionJob.cs - Dönüştürme işi modeli
@@ -137,11 +137,24 @@ Proje altyapısı hazır, WPF ana pencere ve ViewModel implementasyonu tamamland
 6. ✅ Yapılandırma dosyası (Config.json)
 
 ### Eksik Kalan Kritik Bileşenler
-1. ❌ RevitExportTask.cs - Revit API ile dönüştürme mantığı
-2. ❌ WorksetManager.cs - Workset filtreleme
-3. ❌ ViewSelector.cs - View filtreleme
-4. ❌ UI Custom Controls (ProgressControl, FileListControl, SettingsPanel)
-5. ❌ RevitBatchProcessor entegrasyonu
+1. ❌ UI Custom Controls (ProgressControl, FileListControl, SettingsPanel)
+2. ❌ RevitBatchProcessor entegrasyonu testleri
+3. ❌ Visual Studio'da NuGet paket restore
+4. ❌ Revit API DLL referansları ekleme
+
+## Proje Durumu
+Proje core altyapısı %85 tamamlandı. Tüm temel sınıflar, modeller ve iş mantığı implementasyonu hazır. Geriye kalan:
+- UI özel kontrolleri
+- Visual Studio'da projeyi derlemek
+- RevitBatchProcessor ile entegrasyon testleri
+- GitHub'a push
+
+## Sonraki Adımlar
+1. Visual Studio'da projeyi açıp NuGet paketlerini restore et
+2. Revit API DLL'lerini referans olarak ekle
+3. Projeyi derle ve hataları gider
+4. UI kontrollerini tamamla
+5. Test et ve GitHub'a push yap
 
 ---
-*Son güncelleme: 2025-07-22 14:58:30*
+*Son güncelleme: 2025-07-22 15:05:20*
