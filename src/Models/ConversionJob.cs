@@ -11,6 +11,7 @@ namespace RevitNavisworksAutomation.Models
         private ConversionStatus _status = ConversionStatus.Pending;
         private double _progress;
         private string _statusMessage;
+        private string _errorMessage;
         private DateTime? _startTime;
         private DateTime? _endTime;
         
@@ -49,6 +50,12 @@ namespace RevitNavisworksAutomation.Models
         {
             get => _statusMessage;
             set { _statusMessage = value; OnPropertyChanged(); }
+        }
+        
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set { _errorMessage = value; OnPropertyChanged(); }
         }
         
         public DateTime? StartTime

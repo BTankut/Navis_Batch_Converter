@@ -34,10 +34,13 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <!-- Temporarily disabled due to icon format issue
   <PropertyGroup>
     <ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
   </PropertyGroup>
+  -->
   <!-- Revit API References -->
+  <!-- Temporarily disabled - using stubs for development
   <ItemGroup>
     <Reference Include="RevitAPI">
       <HintPath>C:\Program Files\Autodesk\Revit 2021\RevitAPI.dll</HintPath>
@@ -48,6 +51,7 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+  -->
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -60,6 +64,7 @@
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -99,6 +104,8 @@
     <Compile Include="src\Core\RevitExportTask.cs" />
     <Compile Include="src\Core\WorksetManager.cs" />
     <Compile Include="src\Core\ViewSelector.cs" />
+    <!-- Temporary stub for building without Revit API -->
+    <Compile Include="src\Core\Stubs\RevitApiStubs.cs" />
     <!-- Stub files for compilation without Revit API - now disabled -->
     <!--
     <Compile Include="src\Core\RevitExportTask_Stub.cs" />
@@ -122,6 +129,7 @@
     <Compile Include="src\UI\Controls\SettingsPanel.xaml.cs">
       <DependentUpon>SettingsPanel.xaml</DependentUpon>
     </Compile>
+    <Compile Include="src\UI\Converters\InverseBooleanToVisibilityConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -164,9 +172,11 @@
       <Version>13.0.3</Version>
     </PackageReference>
   </ItemGroup>
+  <!-- Temporarily disabled due to icon format issue
   <ItemGroup>
     <Resource Include="Resources\app_icon.ico" />
   </ItemGroup>
+  -->
   <ItemGroup>
     <Folder Include="logs\" />
     <Folder Include="output\" />

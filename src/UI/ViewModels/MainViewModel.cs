@@ -1,12 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using System.Linq;
 using System.IO;
 using Microsoft.Win32;
+using System.Diagnostics;
 using System.Windows.Forms;
+using System.Windows;
+using RevitNavisworksAutomation.Core;
+using RevitNavisworksAutomation.Models;
 
 namespace RevitNavisworksAutomation.UI.ViewModels
 {
@@ -17,16 +23,16 @@ namespace RevitNavisworksAutomation.UI.ViewModels
         public ObservableCollection<WorksetFilter> WorksetFilters { get; }
 
         // Commands
-        public ICommand AddFilesCommand { get; }
-        public ICommand AddFolderCommand { get; }
-        public ICommand ClearAllCommand { get; }
-        public ICommand StartConversionCommand { get; }
-        public ICommand StopConversionCommand { get; }
-        public ICommand RemoveFileCommand { get; }
-        public ICommand ViewDetailsCommand { get; }
-        public ICommand ViewLogsCommand { get; }
-        public ICommand BrowseOutputDirectoryCommand { get; }
-        public ICommand AddWorksetCommand { get; }
+        public ICommand AddFilesCommand { get; private set; }
+        public ICommand AddFolderCommand { get; private set; }
+        public ICommand ClearAllCommand { get; private set; }
+        public ICommand StartConversionCommand { get; private set; }
+        public ICommand StopConversionCommand { get; private set; }
+        public ICommand RemoveFileCommand { get; private set; }
+        public ICommand ViewDetailsCommand { get; private set; }
+        public ICommand ViewLogsCommand { get; private set; }
+        public ICommand BrowseOutputDirectoryCommand { get; private set; }
+        public ICommand AddWorksetCommand { get; private set; }
 
         // Properties
         private bool _isProcessing;
@@ -48,6 +54,20 @@ namespace RevitNavisworksAutomation.UI.ViewModels
         {
             get => _overallProgress;
             set { _overallProgress = value; OnPropertyChanged(); }
+        }
+
+        private double _progress;
+        public double Progress
+        {
+            get => _progress;
+            set { _progress = value; OnPropertyChanged(); }
+        }
+
+        private string _progressText = "Ready";
+        public string ProgressText
+        {
+            get => _progressText;
+            set { _progressText = value; OnPropertyChanged(); }
         }
 
         private string _selectedRevitVersion = "2022";
@@ -189,6 +209,12 @@ namespace RevitNavisworksAutomation.UI.ViewModels
         public MainViewModel()
         {
             Files = new ObservableCollection<ConversionJob>();
+            Files.CollectionChanged += (s, e) => 
+            {
+                OnPropertyChanged(nameof(FileCount));
+                OnPropertyChanged(nameof(CanStartConversion));
+            };
+            
             RevitVersions = new ObservableCollection<string> { "2021", "2022", "2023", "2024" };
             WorksetFilters = new ObservableCollection<WorksetFilter>
             {
@@ -231,10 +257,20 @@ namespace RevitNavisworksAutomation.UI.ViewModels
                 {
                     if (!Files.Any(f => f.FilePath == file))
                     {
-                        Files.Add(new ConversionJob(file));
+                        var job = new ConversionJob(file);
+                        job.PropertyChanged += (s, e) => 
+                        {
+                            if (e.PropertyName == nameof(ConversionJob.IsSelected))
+                            {
+                                OnPropertyChanged(nameof(CanStartConversion));
+                                CommandManager.InvalidateRequerySuggested();
+                            }
+                        };
+                        Files.Add(job);
                     }
                 }
                 OnPropertyChanged(nameof(FileCount));
+                OnPropertyChanged(nameof(CanStartConversion));
             }
         }
 
@@ -253,22 +289,91 @@ namespace RevitNavisworksAutomation.UI.ViewModels
                 {
                     if (!Files.Any(f => f.FilePath == file))
                     {
-                        Files.Add(new ConversionJob(file));
+                        var job = new ConversionJob(file);
+                        job.PropertyChanged += (s, e) => 
+                        {
+                            if (e.PropertyName == nameof(ConversionJob.IsSelected))
+                            {
+                                OnPropertyChanged(nameof(CanStartConversion));
+                                CommandManager.InvalidateRequerySuggested();
+                            }
+                        };
+                        Files.Add(job);
                     }
                 }
                 OnPropertyChanged(nameof(FileCount));
+                OnPropertyChanged(nameof(CanStartConversion));
             }
         }
 
-        private void StartConversion()
+        private async void StartConversion()
         {
             IsProcessing = true;
             StatusMessage = "Starting conversion...";
             StatusIcon = "Progress";
             StatusColor = "Orange";
             ShowProgressDialog = true;
-
-            // TODO: Implement actual conversion logic
+            Progress = 0;
+            ProgressText = "Initializing conversion...";
+            
+            try
+            {
+                // Get selected files
+                var selectedFiles = Files.Where(f => f.IsSelected).ToList();
+                
+                // Update file statuses
+                foreach (var file in selectedFiles)
+                {
+                    file.Status = ConversionStatus.Processing;
+                    file.StatusMessage = "Processing...";
+                    file.Progress = 0;
+                }
+                
+                // Create batch script for RevitBatchProcessor
+                var batchScript = CreateBatchScript(selectedFiles);
+                
+                // Run RevitBatchProcessor
+                await RunRevitBatchProcessor(batchScript);
+                
+                // Update statuses on completion
+                foreach (var file in selectedFiles)
+                {
+                    if (file.Status == ConversionStatus.Processing)
+                    {
+                        file.Status = ConversionStatus.Completed;
+                        file.StatusMessage = "Completed";
+                        file.Progress = 100;
+                    }
+                }
+                
+                StatusMessage = "Conversion completed successfully!";
+                StatusIcon = "CheckCircle";
+                StatusColor = "Green";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Error: {ex.Message}";
+                StatusIcon = "AlertCircle";
+                StatusColor = "Red";
+                Logger.Instance.Error("Conversion failed", ex);
+                
+                // Update file statuses on error
+                foreach (var file in Files.Where(f => f.IsSelected))
+                {
+                    if (file.Status == ConversionStatus.Processing)
+                    {
+                        file.Status = ConversionStatus.Failed;
+                        file.StatusMessage = "Failed";
+                        file.ErrorMessage = ex.Message;
+                    }
+                }
+            }
+            finally
+            {
+                IsProcessing = false;
+                ShowProgressDialog = false;
+                Progress = 100;
+            }
         }
 
         private void StopConversion()
@@ -327,6 +432,223 @@ namespace RevitNavisworksAutomation.UI.ViewModels
             }
         }
 
+        private string CreateBatchScript(List<ConversionJob> files)
+        {
+            // Create a JSON configuration file for the PowerShell script
+            var config = new
+            {
+                InputFiles = files.Select(f => f.FilePath).ToList(),
+                OutputDirectory = OutputDirectory,
+                RevitVersion = SelectedRevitVersion,
+                ViewFilter = new
+                {
+                    Pattern = ViewFilterPattern,
+                    CaseSensitive = ViewFilterCaseSensitive,
+                    RequireSheetAssociation = RequireSheetAssociation
+                },
+                WorksetFilter = new
+                {
+                    Enabled = FilterWorksets,
+                    IncludedWorksets = WorksetFilters.Where(w => w.IsIncluded).Select(w => w.Name).ToList()
+                },
+                ExportOptions = new
+                {
+                    ExportLinks = ExportLinks,
+                    ExportParts = ExportParts,
+                    UseSharedCoordinates = UseSharedCoordinates,
+                    ConvertElementProperties = ConvertElementProperties,
+                    FindMissingMaterials = FindMissingMaterials
+                },
+                PostProcessing = new
+                {
+                    CombineToNWD = CombineToNWD,
+                    DeleteNWCAfterCombine = DeleteNWCAfterCombine,
+                    CompressNWD = CompressNWD
+                }
+            };
+            
+            var configPath = Path.Combine(Path.GetTempPath(), $"NavisBatchConfig_{DateTime.Now:yyyyMMdd_HHmmss}.json");
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(config, Newtonsoft.Json.Formatting.Indented);
+            File.WriteAllText(configPath, json);
+            
+            return configPath;
+        }
+        
+        private async System.Threading.Tasks.Task RunRevitBatchProcessor(string batchScript)
+        {
+            await System.Threading.Tasks.Task.Run(() =>
+            {
+                try
+                {
+                    // Ensure output directory exists
+                    if (!Directory.Exists(OutputDirectory))
+                    {
+                        Directory.CreateDirectory(OutputDirectory);
+                    }
+                    
+                    var logDir = Path.Combine(OutputDirectory, "logs");
+                    if (!Directory.Exists(logDir))
+                    {
+                        Directory.CreateDirectory(logDir);
+                    }
+                    
+                    // Find BatchRvt.exe
+                    var rbpPath = FindRevitBatchProcessor();
+                    
+                    // Read configuration
+                    var configJson = File.ReadAllText(batchScript);
+                    dynamic config = Newtonsoft.Json.JsonConvert.DeserializeObject(configJson);
+                    var inputFiles = config.InputFiles.ToObject<List<string>>();
+                    
+                    // Create file list
+                    var fileListPath = Path.Combine(Path.GetTempPath(), "NavisBatchFiles.txt");
+                    // Use ASCII encoding for RevitBatchProcessor compatibility
+                    using (var writer = new StreamWriter(fileListPath, false, System.Text.Encoding.ASCII))
+                    {
+                        foreach (var file in inputFiles)
+                        {
+                            writer.WriteLine(file);
+                        }
+                    }
+                    
+                    // Use the working Python script
+                    var scriptDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "scripts");
+                    var pythonScript = Path.Combine(scriptDir, "WorkingExport.py");
+                    
+                    if (!File.Exists(pythonScript))
+                    {
+                        throw new FileNotFoundException($"Python script not found: {pythonScript}");
+                    }
+                    
+                    // Run BatchRvt directly
+                    var startInfo = new ProcessStartInfo
+                    {
+                        FileName = rbpPath,
+                        Arguments = $"--file_list \"{fileListPath}\" --task_script \"{pythonScript}\" --revit_version {config.RevitVersion} --log_folder \"{logDir}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = false, // Show window to see what's happening
+                        WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory,
+                        StandardOutputEncoding = System.Text.Encoding.UTF8,
+                        StandardErrorEncoding = System.Text.Encoding.UTF8
+                    };
+                    
+                    // Set environment variables
+                    startInfo.EnvironmentVariables["PYTHONIOENCODING"] = "utf-8";
+                    
+                    using (var process = Process.Start(startInfo))
+                    {
+                        var allOutput = new System.Text.StringBuilder();
+                        var allErrors = new System.Text.StringBuilder();
+                        bool processCompleted = false;
+                        
+                        process.OutputDataReceived += (s, e) =>
+                        {
+                            if (!string.IsNullOrEmpty(e.Data))
+                            {
+                                allOutput.AppendLine(e.Data);
+                                System.Windows.Application.Current?.Dispatcher?.BeginInvoke(new Action(() =>
+                                {
+                                    StatusMessage = e.Data;
+                                    Logger.Instance.Info(e.Data);
+                                    
+                                    // Update progress text in dialog
+                                    ProgressText = e.Data;
+                                    
+                                    // Parse progress from BatchRvt output
+                                    if (e.Data.Contains("Processing file") && e.Data.Contains(" of "))
+                                    {
+                                        var match = System.Text.RegularExpressions.Regex.Match(e.Data, @"(\d+) of (\d+)");
+                                        if (match.Success)
+                                        {
+                                            var current = int.Parse(match.Groups[1].Value);
+                                            var total = int.Parse(match.Groups[2].Value);
+                                            Progress = (current * 100.0) / total;
+                                            ProgressText = $"Processing file {current} of {total}";
+                                        }
+                                    }
+                                    else if (e.Data.Contains("Opening file"))
+                                    {
+                                        Progress = 30;
+                                        ProgressText = "Opening Revit file...";
+                                    }
+                                    else if (e.Data.Contains("Task script operation started"))
+                                    {
+                                        Progress = 60;
+                                        ProgressText = "Exporting to Navisworks...";
+                                    }
+                                    else if (e.Data.Contains("Task script operation completed"))
+                                    {
+                                        Progress = 90;
+                                        ProgressText = "Finalizing export...";
+                                    }
+                                    
+                                    // Check for completion messages
+                                    if (e.Data.Contains("Operation completed") || 
+                                        e.Data.Contains("plain-text copy of the Log File has been saved"))
+                                    {
+                                        processCompleted = true;
+                                        Progress = 100;
+                                        ProgressText = "Conversion completed!";
+                                    }
+                                }));
+                            }
+                        };
+                        
+                        process.ErrorDataReceived += (s, e) =>
+                        {
+                            if (!string.IsNullOrEmpty(e.Data))
+                            {
+                                allErrors.AppendLine(e.Data);
+                                Logger.Instance.Error(e.Data);
+                            }
+                        };
+                        
+                        process.BeginOutputReadLine();
+                        process.BeginErrorReadLine();
+                        
+                        // Wait with timeout
+                        if (!process.WaitForExit(300000)) // 5 minutes timeout
+                        {
+                            process.Kill();
+                            throw new TimeoutException("BatchRvt process timed out after 5 minutes");
+                        }
+                        
+                        // Give a moment for final output
+                        System.Threading.Thread.Sleep(1000);
+                        
+                        if (process.ExitCode != 0 && !processCompleted)
+                        {
+                            var errorDetails = allErrors.Length > 0 ? allErrors.ToString() : "No error details available";
+                            var outputDetails = allOutput.Length > 0 ? allOutput.ToString() : "No output available";
+                            
+                            Logger.Instance.Error($"BatchRvt Exit Code: {process.ExitCode}");
+                            Logger.Instance.Error($"BatchRvt Errors:\n{errorDetails}");
+                            Logger.Instance.Error($"BatchRvt Output:\n{outputDetails}");
+                            
+                            throw new Exception($"BatchRvt failed with exit code: {process.ExitCode}\n\nError Output:\n{errorDetails}\n\nStandard Output:\n{outputDetails}");
+                        }
+                    }
+                    
+                    // Clean up temp file
+                    try { File.Delete(fileListPath); } catch { }
+                    
+                    System.Windows.Application.Current?.Dispatcher?.BeginInvoke(new Action(() =>
+                    {
+                        StatusMessage = "Conversion completed successfully!";
+                        StatusIcon = "CheckCircle";
+                        StatusColor = "Green";
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Failed to run RevitBatchProcessor: {ex.Message}", ex);
+                }
+            });
+        }
+
+
         public void SaveSettings()
         {
             // TODO: Implement settings persistence
@@ -335,6 +657,28 @@ namespace RevitNavisworksAutomation.UI.ViewModels
         private void LoadSettings()
         {
             // TODO: Implement settings loading
+        }
+
+        private string FindRevitBatchProcessor()
+        {
+            var possiblePaths = new[]
+            {
+                @"C:\Users\BT\AppData\Local\RevitBatchProcessor\BatchRvt.exe",
+                @"C:\Program Files (x86)\RevitBatchProcessor\RevitBatchProcessor.exe",
+                @"C:\Program Files\RevitBatchProcessor\RevitBatchProcessor.exe",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86), @"RevitBatchProcessor\RevitBatchProcessor.exe"),
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), @"RevitBatchProcessor\RevitBatchProcessor.exe")
+            };
+            
+            foreach (var path in possiblePaths)
+            {
+                if (File.Exists(path))
+                {
+                    return path;
+                }
+            }
+            
+            throw new FileNotFoundException("RevitBatchProcessor not found! Please install from: https://github.com/bvn-architecture/RevitBatchProcessor/releases");
         }
 
         // Property change notification
@@ -361,68 +705,6 @@ namespace RevitNavisworksAutomation.UI.ViewModels
         {
             get => _isIncluded;
             set { _isIncluded = value; OnPropertyChanged(); }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public class ConversionJob : INotifyPropertyChanged
-    {
-        private bool _isSelected = true;
-        private string _status = "Pending";
-        private double _progress;
-
-        public string FilePath { get; }
-        public string FileName => Path.GetFileName(FilePath);
-        public string FileSize { get; }
-
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set { _isSelected = value; OnPropertyChanged(); }
-        }
-
-        public string Status
-        {
-            get => _status;
-            set { _status = value; OnPropertyChanged(); }
-        }
-
-        public double Progress
-        {
-            get => _progress;
-            set { _progress = value; OnPropertyChanged(); }
-        }
-
-        public ConversionJob(string filePath)
-        {
-            FilePath = filePath;
-            if (File.Exists(filePath))
-            {
-                var info = new FileInfo(filePath);
-                FileSize = FormatFileSize(info.Length);
-            }
-            else
-            {
-                FileSize = "Unknown";
-            }
-        }
-
-        private string FormatFileSize(long bytes)
-        {
-            string[] sizes = { "B", "KB", "MB", "GB", "TB" };
-            double len = bytes;
-            int order = 0;
-            while (len >= 1024 && order < sizes.Length - 1)
-            {
-                order++;
-                len = len / 1024;
-            }
-            return $"{len:0.##} {sizes[order]}";
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

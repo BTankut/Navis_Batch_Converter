@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace RevitNavisworksAutomation.Models
 {
@@ -86,9 +87,9 @@ namespace RevitNavisworksAutomation.Models
         public List<ConversionResult> Results { get; set; } = new List<ConversionResult>();
         
         public int TotalFiles => Results.Count;
-        public int SuccessfulFiles => Results.Count(r => r.IsSuccess);
-        public int FailedFiles => Results.Count(r => r.Status == ConversionStatus.Failed);
-        public int SkippedFiles => Results.Count(r => r.Status == ConversionStatus.Skipped);
+        public int SuccessfulFiles => Results.Where(r => r.IsSuccess).Count();
+        public int FailedFiles => Results.Where(r => r.Status == ConversionStatus.Failed).Count();
+        public int SkippedFiles => Results.Where(r => r.Status == ConversionStatus.Skipped).Count();
         
         public double SuccessRate => TotalFiles > 0 ? (SuccessfulFiles * 100.0 / TotalFiles) : 0;
         

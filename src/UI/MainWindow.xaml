@@ -6,8 +6,7 @@
                  xmlns:local="clr-namespace:RevitNavisworksAutomation.UI.Controls"
                  Title="Revit to Navisworks Converter"
                  Height="800" Width="1200"
-                 WindowStartupLocation="CenterScreen"
-                 Icon="/Resources/app_icon.ico">
+                 WindowStartupLocation="CenterScreen">
     
     <mah:MetroWindow.LeftWindowCommands>
         <mah:WindowCommands>
@@ -332,7 +331,6 @@
                             materialDesign:ButtonAssist.CornerRadius="20"
                             Command="{Binding StartConversionCommand}"
                             IsEnabled="{Binding CanStartConversion}"
-                            Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverted}"
                             Margin="0,0,10,0"
                             Width="120">
                         <StackPanel Orientation="Horizontal">
@@ -360,6 +358,16 @@
                             <TextBlock Margin="8,0" Text="View Logs" />
                         </StackPanel>
                     </Button>
+                    
+                    <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                            Click="OpenBatchProcessor_Click"
+                            Margin="10,0,0,0"
+                            ToolTip="Open RevitBatchProcessor GUI for advanced options">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="OpenInNew" />
+                            <TextBlock Margin="8,0" Text="Advanced Mode" />
+                        </StackPanel>
+                    </Button>
                 </StackPanel>
             </Grid>
         </materialDesign:Card>
@@ -369,7 +377,7 @@
                                    IsOpen="{Binding ShowProgressDialog}"
                                    DialogTheme="Inherit">
             <materialDesign:DialogHost.DialogContent>
-                <local:ProgressControl DataContext="{Binding ProgressViewModel}" />
+                <local:ProgressControl DataContext="{Binding}" />
             </materialDesign:DialogHost.DialogContent>
         </materialDesign:DialogHost>
     </Grid>

@@ -11,7 +11,17 @@
       "Bash(git remote add:*)",
       "Bash(dotnet restore:*)",
       "Bash(dotnet build)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\devenv.exe\" NavisBatchConverter.sln)",
+      "Bash(Build.bat)",
+      "Bash(cmd:*)",
+      "Bash(dir:*)",
+      "Bash(powershell:*)",
+      "Bash(copy:*)",
+      "Bash(find:*)",
+      "Bash(\"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\" NavisBatchConverter.sln /t:Rebuild /p:Configuration=Debug)",
+      "Bash(wc:*)",
+      "Bash(rm:*)"
     ],
     "deny": []
   }

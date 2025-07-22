@@ -189,7 +189,15 @@ namespace RevitNavisworksAutomation.Core
             try
             {
                 // Get level if applicable
-                info.Level = view.GenLevel?.Name ?? "N/A";
+                if (view.GenLevel != null && view.GenLevel.IntegerValue != -1)
+                {
+                    var level = doc.GetElement(view.GenLevel) as Level;
+                    info.Level = level?.Name ?? "N/A";
+                }
+                else
+                {
+                    info.Level = "N/A";
+                }
                 
                 // Get phase
                 var phaseParam = view.get_Parameter(BuiltInParameter.VIEW_PHASE);

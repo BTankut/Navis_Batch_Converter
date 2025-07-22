@@ -20,15 +20,15 @@
 
             <!-- Current File Progress -->
             <StackPanel Grid.Row="1" Margin="0,0,0,20">
-                <TextBlock Text="{Binding CurrentFileName}" 
+                <TextBlock Text="{Binding ProgressText}" 
                            HorizontalAlignment="Center"
                            Margin="0,0,0,8"/>
                 
-                <ProgressBar Value="{Binding CurrentFileProgress}" 
+                <ProgressBar Value="{Binding Progress}" 
                              Height="8"
                              materialDesign:TransitionAssist.DisableTransitions="True"/>
                 
-                <TextBlock Text="{Binding CurrentOperation}" 
+                <TextBlock Text="{Binding StatusMessage}" 
                            HorizontalAlignment="Center"
                            Margin="0,8,0,0"
                            FontSize="12"
@@ -37,7 +37,7 @@
 
             <!-- File List -->
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding ProcessingJobs}">
+                <ItemsControl ItemsSource="{Binding Files}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border BorderBrush="{DynamicResource MaterialDesignDivider}" 
@@ -61,7 +61,7 @@
                                                VerticalAlignment="Center"/>
                                     
                                     <TextBlock Grid.Column="2" 
-                                               Text="{Binding ElapsedTime}"
+                                               Text="{Binding StatusMessage}"
                                                VerticalAlignment="Center"
                                                FontSize="12"
                                                Foreground="{DynamicResource MaterialDesignBodyLight}"/>
@@ -80,12 +80,12 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" 
-                           Text="{Binding OverallProgressText}" 
+                           Text="{Binding ProgressText}" 
                            HorizontalAlignment="Center"
                            Margin="0,0,0,8"/>
                 
                 <ProgressBar Grid.Row="1" 
-                             Value="{Binding OverallProgress}"
+                             Value="{Binding Progress}"
                              Height="10"/>
             </Grid>
         </Grid>

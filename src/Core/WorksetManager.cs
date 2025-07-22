@@ -54,7 +54,7 @@ namespace RevitNavisworksAutomation.Core
                                 WorksetDefaultVisibilitySettings.Visible : 
                                 WorksetDefaultVisibilitySettings.Hidden;
                             
-                            worksetTable.SetWorksetDefaultVisibilitySettings(workset.Id, defaultVisibility);
+                            worksetTable.SetWorksetDefaultVisibilitySettings(doc, defaultVisibility);
                             
                             // Apply to all 3D views
                             ApplyWorksetVisibilityToViews(doc, workset.Id, shouldInclude);
@@ -88,7 +88,7 @@ namespace RevitNavisworksAutomation.Core
                 var views3D = new FilteredElementCollector(doc)
                     .OfClass(typeof(View3D))
                     .Cast<View3D>()
-                    .Where(v => !v.IsTemplate && v.CanModifyViewSpecificElements());
+                    .Where(v => !v.IsTemplate && v.CanModifyViewSpecificElements);
                 
                 foreach (var view in views3D)
                 {

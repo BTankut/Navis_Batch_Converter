@@ -112,7 +112,7 @@ namespace RevitNavisworksAutomation.Core
                 var options = new NavisworksExportOptions
                 {
                     ExportScope = NavisworksExportScope.View,
-                    ViewId = view.Id,
+                    ViewId = new ViewId { IntegerValue = view.Id.IntegerValue },
                     ExportLinks = _config.ExportOptions.ExportLinks,
                     ExportParts = _config.ExportOptions.ExportParts,
                     ExportRoomGeometry = false,

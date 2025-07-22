@@ -1,0 +1,17 @@
+{
+  "TaskScriptFilePath": "C:\\Users\\BT\\CascadeProjects\\Navis_Batch_Converter\\bin\\Debug\\scripts\\ExportToNavisworks.py",
+  "RevitFileListFilePath": "",
+  "DataExportFolderPath": "C:\\Output\\Navisworks",
+  "RevitSessionOption": "UseSeparateSessionPerFile",
+  "RevitProcessingOption": "BatchRevitFileProcessing",
+  "CentralFileOpenOption": "Detach",
+  "DeleteLocalAfter": false,
+  "DiscardWorksetsOnDetach": false,
+  "AuditOnOpen": false,
+  "ProcessingTimeOutMinutes": 60,
+  "ShowMessageBoxOnTaskScriptError": false,
+  "LogFolderPath": "C:\\Output\\Navisworks\\logs",
+  "ShowRevitProcessErrorMessages": false,
+  "EnableDataExport": true,
+  "RevitFileProcessingOption": "UseFileRevitVersion"
+}

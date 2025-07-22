@@ -51,12 +51,30 @@ namespace RevitNavisworksAutomation.UI
         {
             try
             {
-                var rbpPath = $@"{Environment.GetEnvironmentVariable("LOCALAPPDATA")}\RevitBatchProcessor\BatchRvt.exe";
-                
-                if (!File.Exists(rbpPath))
+                // Try to find RevitBatchProcessor GUI
+                var possiblePaths = new[]
+                {
+                    @"C:\Program Files (x86)\RevitBatchProcessor\RevitBatchProcessor.exe",
+                    @"C:\Program Files\RevitBatchProcessor\RevitBatchProcessor.exe",
+                    $@"{Environment.GetEnvironmentVariable("LOCALAPPDATA")}\RevitBatchProcessor\BatchRvtGUI.exe",
+                    $@"{Environment.GetEnvironmentVariable("LOCALAPPDATA")}\RevitBatchProcessor\RevitBatchProcessorGUI.exe",
+                    $@"{Environment.GetEnvironmentVariable("LOCALAPPDATA")}\RevitBatchProcessor\RevitBatchProcessor.exe"
+                };
+
+                string guiPath = null;
+                foreach (var path in possiblePaths)
+                {
+                    if (File.Exists(path))
+                    {
+                        guiPath = path;
+                        break;
+                    }
+                }
+
+                if (guiPath == null)
                 {
                     MessageBox.Show(
-                        "RevitBatchProcessor not found!\n\n" +
+                        "RevitBatchProcessor GUI not found!\n\n" +
                         "Please install it from:\n" +
                         "https://github.com/bvn-architecture/RevitBatchProcessor",
                         "Error",
@@ -71,9 +89,9 @@ namespace RevitNavisworksAutomation.UI
                 // Launch native GUI
                 var processInfo = new ProcessStartInfo
                 {
-                    FileName = rbpPath,
+                    FileName = guiPath,
                     UseShellExecute = true,
-                    WorkingDirectory = Path.GetDirectoryName(rbpPath)
+                    WorkingDirectory = Path.GetDirectoryName(guiPath)
                 };
 
                 Process.Start(processInfo);

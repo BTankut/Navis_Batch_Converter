@@ -1,0 +1,26 @@
+{
+  "InputFiles": ["C:\\test.rvt"],
+  "OutputDirectory": "C:\\Output\\Navisworks",
+  "RevitVersion": "2021",
+  "ViewFilter": {
+    "Pattern": "navis_view",
+    "CaseSensitive": false,
+    "RequireSheetAssociation": false
+  },
+  "WorksetFilter": {
+    "Enabled": false,
+    "IncludedWorksets": []
+  },
+  "ExportOptions": {
+    "ExportLinks": true,
+    "ExportParts": true,
+    "UseSharedCoordinates": true,
+    "ConvertElementProperties": true,
+    "FindMissingMaterials": true
+  },
+  "PostProcessing": {
+    "CombineToNWD": false,
+    "DeleteNWCAfterCombine": false,
+    "CompressNWD": false
+  }
+}
