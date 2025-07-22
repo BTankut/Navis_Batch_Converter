@@ -1,0 +1,34 @@
+{
+  "RevitVersion": "2022",
+  "OutputDirectory": "C:\\Output\\Navisworks",
+  "LogDirectory": "C:\\Output\\Logs",
+  "ViewFilter": {
+    "Pattern": "navis_view",
+    "CaseSensitive": false,
+    "ExcludeTemplates": true,
+    "RequireSheetAssociation": false
+  },
+  "WorksetSettings": {
+    "FilterWorksets": true,
+    "IncludeWorksets": ["Architecture", "Structure", "MEP"],
+    "ExcludeWorksets": ["Coordination", "Linked Files"]
+  },
+  "ExportOptions": {
+    "ExportLinks": true,
+    "ExportParts": true,
+    "UseSharedCoordinates": true,
+    "ConvertUnits": false
+  },
+  "Processing": {
+    "MaxRetries": 3,
+    "RetryDelaySeconds": 5,
+    "BatchSize": 50,
+    "MaxParallelFiles": 1,
+    "TimeoutMinutesPerFile": 30
+  },
+  "PostProcessing": {
+    "CombineToNWD": true,
+    "DeleteNWCAfterCombine": false,
+    "CompressNWD": true
+  }
+}

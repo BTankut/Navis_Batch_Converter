@@ -49,21 +49,21 @@ Revit (.rvt) dosyalarını toplu olarak Navisworks (.nwc/.nwd) formatına dönü
   - [ ] SettingsPanel - Ayarlar paneli
 
 ### 5. Core İşlevsellik
+- [x] Logger.cs - Loglama sistemi
+- [x] ErrorHandler.cs - Hata yönetimi
 - [ ] RevitExportTask.cs - Ana dönüştürme mantığı
 - [ ] WorksetManager.cs - Workset filtreleme
 - [ ] ViewSelector.cs - View filtreleme
-- [ ] Logger.cs - Loglama sistemi
-- [ ] ErrorHandler.cs - Hata yönetimi
 
 ### 6. Veri Modelleri
-- [ ] ConversionJob.cs - Dönüştürme işi modeli
-- [ ] ConversionSettings.cs - Ayarlar modeli
-- [ ] ConversionResult.cs - Sonuç modeli
+- [x] ConversionJob.cs - Dönüştürme işi modeli
+- [x] ConversionSettings.cs - Ayarlar modeli
+- [x] ConversionResult.cs - Sonuç modeli
 
 ### 7. PowerShell Entegrasyonu
-- [ ] RunBatchConverter.ps1 - Ana orchestrator
-- [ ] Config.json - Yapılandırma dosyası
-- [ ] Install.ps1 - Kurulum scripti
+- [x] RunBatchConverter.ps1 - Ana orchestrator (CLI mode)
+- [x] Config.json - Yapılandırma dosyası
+- [x] Install.ps1 - Kurulum scripti
 
 ### 8. RevitBatchProcessor Entegrasyonu
 - [ ] CLI mode entegrasyonu (varsayılan)
@@ -128,5 +128,20 @@ Proje altyapısı hazır, WPF ana pencere ve ViewModel implementasyonu tamamland
 - Henüz kritik bir sorun yaşanmadı
 - NuGet paketleri henüz yüklenmedi, Visual Studio'da restore edilmesi gerekiyor
 
+### Tamamlanan Ana Bileşenler
+1. ✅ WPF Uygulama temeli (App.xaml, MainWindow)
+2. ✅ MVVM yapısı (MainViewModel)
+3. ✅ Logger ve ErrorHandler sınıfları
+4. ✅ Tüm Model sınıfları (ConversionJob, ConversionSettings, ConversionResult)
+5. ✅ PowerShell scriptleri (RunBatchConverter.ps1, Install.ps1)
+6. ✅ Yapılandırma dosyası (Config.json)
+
+### Eksik Kalan Kritik Bileşenler
+1. ❌ RevitExportTask.cs - Revit API ile dönüştürme mantığı
+2. ❌ WorksetManager.cs - Workset filtreleme
+3. ❌ ViewSelector.cs - View filtreleme
+4. ❌ UI Custom Controls (ProgressControl, FileListControl, SettingsPanel)
+5. ❌ RevitBatchProcessor entegrasyonu
+
 ---
-*Son güncelleme: 2025-07-22 14:45:10*
+*Son güncelleme: 2025-07-22 14:58:30*
