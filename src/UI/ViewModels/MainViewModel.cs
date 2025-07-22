@@ -134,6 +134,20 @@ namespace RevitNavisworksAutomation.UI.ViewModels
             set { _compressNWD = value; OnPropertyChanged(); SaveSettings(); }
         }
 
+        private bool _findMissingMaterials = true;
+        public bool FindMissingMaterials
+        {
+            get => _findMissingMaterials;
+            set { _findMissingMaterials = value; OnPropertyChanged(); SaveSettings(); }
+        }
+
+        private bool _excludeTemplates = true;
+        public bool ExcludeTemplates
+        {
+            get => _excludeTemplates;
+            set { _excludeTemplates = value; OnPropertyChanged(); SaveSettings(); }
+        }
+
         private string _outputDirectory = @"C:\Output\Navisworks";
         public string OutputDirectory
         {

@@ -1,0 +1,173 @@
+<UserControl x:Class="RevitNavisworksAutomation.UI.Controls.SettingsPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+            <!-- View Filter Section -->
+            <materialDesign:Card Margin="0,0,0,16" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="View Filter" 
+                               Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               Margin="0,0,0,16"/>
+                    
+                    <TextBox materialDesign:HintAssist.Hint="View name pattern (e.g., navis_view)"
+                             Text="{Binding ViewFilterPattern}"
+                             Margin="0,0,0,8"/>
+                    
+                    <CheckBox Content="Case sensitive search" 
+                              IsChecked="{Binding ViewFilterCaseSensitive}"
+                              Margin="0,4"/>
+                    
+                    <CheckBox Content="Require sheet association" 
+                              IsChecked="{Binding RequireSheetAssociation}"
+                              Margin="0,4"/>
+                    
+                    <CheckBox Content="Exclude view templates" 
+                              IsChecked="{Binding ExcludeTemplates}"
+                              IsEnabled="False"
+                              Margin="0,4"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- Workset Filter Section -->
+            <materialDesign:Card Margin="0,0,0,16" Padding="16">
+                <StackPanel>
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBlock Text="Workset Filter" 
+                                   Style="{StaticResource MaterialDesignHeadline6TextBlock}"/>
+                        
+                        <ToggleButton Grid.Column="1"
+                                      IsChecked="{Binding FilterWorksets}"
+                                      Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                      ToolTip="Enable workset filtering"/>
+                    </Grid>
+                    
+                    <ItemsControl ItemsSource="{Binding WorksetFilters}"
+                                  IsEnabled="{Binding FilterWorksets}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding Name}" 
+                                          IsChecked="{Binding IsIncluded}"
+                                          Margin="0,2"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    
+                    <Grid Margin="0,8,0,0" IsEnabled="{Binding FilterWorksets}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBox x:Name="NewWorksetTextBox"
+                                 materialDesign:HintAssist.Hint="Add custom workset"
+                                 KeyDown="NewWorksetTextBox_KeyDown"/>
+                        
+                        <Button Grid.Column="1" 
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Command="{Binding AddWorksetCommand}"
+                                CommandParameter="{Binding ElementName=NewWorksetTextBox, Path=Text}"
+                                Margin="4,0,0,0">
+                            <materialDesign:PackIcon Kind="Plus" />
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- Export Options Section -->
+            <materialDesign:Card Margin="0,0,0,16" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Export Options" 
+                               Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               Margin="0,0,0,16"/>
+                    
+                    <CheckBox Content="Export linked models" 
+                              IsChecked="{Binding ExportLinks}"
+                              Margin="0,4"/>
+                    
+                    <CheckBox Content="Export parts" 
+                              IsChecked="{Binding ExportParts}"
+                              Margin="0,4"/>
+                    
+                    <CheckBox Content="Use shared coordinates" 
+                              IsChecked="{Binding UseSharedCoordinates}"
+                              Margin="0,4"/>
+                    
+                    <CheckBox Content="Convert element properties" 
+                              IsChecked="{Binding ConvertElementProperties}"
+                              Margin="0,4"/>
+                    
+                    <CheckBox Content="Find missing materials" 
+                              IsChecked="{Binding FindMissingMaterials}"
+                              Margin="0,4"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- Post Processing Section -->
+            <materialDesign:Card Margin="0,0,0,16" Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Post Processing" 
+                               Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               Margin="0,0,0,16"/>
+                    
+                    <CheckBox Content="Combine NWC files to single NWD" 
+                              IsChecked="{Binding CombineToNWD}"
+                              Margin="0,4"/>
+                    
+                    <CheckBox Content="Delete NWC files after combining" 
+                              IsChecked="{Binding DeleteNWCAfterCombine}"
+                              IsEnabled="{Binding CombineToNWD}"
+                              Margin="0,4,0,4"/>
+                    
+                    <CheckBox Content="Compress NWD file" 
+                              IsChecked="{Binding CompressNWD}"
+                              IsEnabled="{Binding CombineToNWD}"
+                              Margin="0,4"/>
+                </StackPanel>
+            </materialDesign:Card>
+
+            <!-- Output Directory Section -->
+            <materialDesign:Card Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Output Settings" 
+                               Style="{StaticResource MaterialDesignHeadline6TextBlock}"
+                               Margin="0,0,0,16"/>
+                    
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="Output Directory" 
+                                   Margin="0,0,0,8"/>
+                        
+                        <Grid Grid.Row="1">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBox Text="{Binding OutputDirectory}"
+                                     IsReadOnly="True"
+                                     materialDesign:HintAssist.Hint="Select output folder"/>
+                            
+                            <Button Grid.Column="1" 
+                                    Style="{StaticResource MaterialDesignFlatButton}"
+                                    Command="{Binding BrowseOutputDirectoryCommand}"
+                                    Margin="4,0,0,0">
+                                <materialDesign:PackIcon Kind="FolderOpen" />
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </StackPanel>
+            </materialDesign:Card>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
