@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>RevitNavisworksAutomation</RootNamespace>
+    <AssemblyName>NavisBatchConverter</AssemblyName>
+    <ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MaterialDesignThemes" Version="4.6.1" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.9" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
+    <PackageReference Include="Prism.Core" Version="8.1.97" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Core files -->
+    <Compile Remove="src\Core\RevitExportTask.cs" />
+    <Compile Remove="src\Core\WorksetManager.cs" />
+    <Compile Remove="src\Core\ViewSelector.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\app_icon.ico" />
+    <Resource Include="Resources\app_icon.ico" />
+  </ItemGroup>
+
+</Project>

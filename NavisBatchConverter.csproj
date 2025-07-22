@@ -37,6 +37,19 @@
   <PropertyGroup>
     <ApplicationIcon>Resources\app_icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <!-- Revit API References - Uncomment when you have Revit installed -->
+  <!--
+  <ItemGroup>
+    <Reference Include="RevitAPI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2022\RevitAPI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>C:\Program Files\Autodesk\Revit 2022\RevitAPIUI.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  -->
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -84,9 +97,16 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <!-- Revit API dependent files - uncomment when Revit API is available -->
+    <!--
     <Compile Include="src\Core\RevitExportTask.cs" />
     <Compile Include="src\Core\WorksetManager.cs" />
     <Compile Include="src\Core\ViewSelector.cs" />
+    -->
+    <!-- Stub files for compilation without Revit API -->
+    <Compile Include="src\Core\RevitExportTask_Stub.cs" />
+    <Compile Include="src\Core\WorksetManager_Stub.cs" />
+    <Compile Include="src\Core\ViewSelector_Stub.cs" />
     <Compile Include="src\Core\Logger.cs" />
     <Compile Include="src\Core\ErrorHandler.cs" />
     <Compile Include="src\Models\ConversionJob.cs" />
